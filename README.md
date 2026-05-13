@@ -78,16 +78,3 @@ curl -X POST http://localhost:8080/api/scales \
 
 ---
 
-## Etapa 2 — Ingestão e Estabilização (em desenvolvimento)
-
-- Endpoint de ingestão do ESP32 (`POST /api/weighing`)
-- Algoritmo Sliding Window para estabilização do peso
-- Detecção de fuga prematura
-- Publicação no Apache Kafka
-
-## Etapa 3 — Worker Kafka e Regras de Negócio (em desenvolvimento)
-
-- Consumer Kafka para processar dados estabilizados
-- Cálculo de peso líquido (bruto − tara)
-- Margem de lucro dinâmica por escassez do grão
-- Persistência da transação final
