@@ -1,0 +1,21 @@
+# Build
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Arquivo de estudo pessoal (não vai pro GitHub)
+ESTUDO_ETAPA1.txt
+ESTUDO_ETAPA2.txt
+ESTUDO_ETAPA3.txt
