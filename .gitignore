@@ -15,7 +15,9 @@ target/
 .DS_Store
 Thumbs.db
 
-# Arquivo de estudo pessoal (não vai pro GitHub)
+# Arquivos pessoais (NÃO vão pro GitHub)
 ESTUDO_ETAPA1.txt
 ESTUDO_ETAPA2.txt
 ESTUDO_ETAPA3.txt
+ROTEIRO_APRESENTACAO.txt
+ROADMAP_TESTES.txt

@@ -22,7 +22,7 @@ public class TruckService {
         if (repository.existsByPlate(request.plate())) {
             throw new IllegalArgumentException("Já existe um caminhão com a placa: " + request.plate());
         }
-        var truck = new Truck(request.plate().toUpperCase(), request.tareWeight());
+        var truck = new Truck(request.plate().toUpperCase(), request.tareWeight(), request.grainId());
         return repository.save(truck);
     }
 

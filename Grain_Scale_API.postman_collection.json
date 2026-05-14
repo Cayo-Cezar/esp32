@@ -1,0 +1,591 @@
+{
+	"info": {
+		"_postman_id": "grain-scale-collection",
+		"name": "Grain Scale API",
+		"description": "Sistema de Pesagem de Transporte de Grãos — Endpoints para teste",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "1. Cadastros",
+			"item": [
+				{
+					"name": "1.1 Criar Filial",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Doca Central\",\n  \"location\": \"Rodovia BR-163, km 42\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/branches",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"branches"
+							]
+						}
+					}
+				},
+				{
+					"name": "1.2 Listar Filiais",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/branches",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"branches"
+							]
+						}
+					}
+				},
+				{
+					"name": "1.3 Buscar Filial por ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/branches/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"branches",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "1.4 Criar Grão",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Soja\",\n  \"purchasePricePerTon\": 1850.00\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/grains",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"grains"
+							]
+						}
+					}
+				},
+				{
+					"name": "1.5 Listar Grãos",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/grains",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"grains"
+							]
+						}
+					}
+				},
+				{
+					"name": "1.6 Buscar Grão por ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/grains/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"grains",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "1.7 Criar Balança (ESP32)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"externalId\": \"ESP32-DOCK-01\",\n  \"branchId\": \"<UUID_DA_FILIAL>\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/scales",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"scales"
+							]
+						}
+					}
+				},
+				{
+					"name": "1.8 Listar Balanças",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/scales",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"scales"
+							]
+						}
+					}
+				},
+				{
+					"name": "1.9 Buscar Balança por ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/scales/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"scales",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "1.10 Buscar Balança por External ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/scales/external/:externalId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"scales",
+								"external",
+								":externalId"
+							],
+							"variable": [
+								{
+									"key": "externalId",
+									"value": "ESP32-DOCK-01"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "1.11 Criar Caminhão",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"plate\": \"ABC1D23\",\n  \"tareWeight\": 8500.0,\n  \"grainId\": \"<UUID_DO_GRAO>\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/trucks",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"trucks"
+							]
+						}
+					}
+				},
+				{
+					"name": "1.12 Listar Caminhões",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/trucks",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"trucks"
+							]
+						}
+					}
+				},
+				{
+					"name": "1.13 Buscar Caminhão por ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/trucks/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"trucks",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "1.14 Buscar Caminhão por Placa",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/trucks/plate/:plate",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"trucks",
+								"plate",
+								":plate"
+							],
+							"variable": [
+								{
+									"key": "plate",
+									"value": "ABC1D23"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. Ingestão (ESP32)",
+			"item": [
+				{
+					"name": "2.1 Enviar Leitura do ESP32",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"ESP32-DOCK-01\",\n  \"plate\": \"ABC1D23\",\n  \"weight\": 25430.5\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/weighing",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"weighing"
+							]
+						},
+						"description": "Simula uma leitura do ESP32. Retorna 202 Accepted (fire-and-forget). Para estabilizar o peso, envie esta requisição ~35 vezes com intervalo de 100ms."
+					}
+				}
+			]
+		},
+		{
+			"name": "3. Transações",
+			"item": [
+				{
+					"name": "3.1 Listar Transações",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"transactions"
+							]
+						}
+					}
+				},
+				{
+					"name": "3.2 Buscar Transação por ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"transactions",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": ""
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "3.3 Listar Transações por Grão",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/transactions/grain/:grainId",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"transactions",
+								"grain",
+								":grainId"
+							],
+							"variable": [
+								{
+									"key": "grainId",
+									"value": ""
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. Relatórios",
+			"item": [
+				{
+					"name": "4.1 Resumo Geral",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/reports/summary",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"reports",
+								"summary"
+							]
+						},
+						"description": "Total de transações, compra total, venda total, lucro bruto e margem média."
+					}
+				},
+				{
+					"name": "4.2 Relatório por Grão",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/reports/by-grain",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"reports",
+								"by-grain"
+							]
+						},
+						"description": "Por tipo de grão: transações, peso total, compra, venda e lucro."
+					}
+				},
+				{
+					"name": "4.3 Relatório por Filial",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/reports/by-branch",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"reports",
+								"by-branch"
+							]
+						},
+						"description": "Por filial: volume processado, valores e lucro."
+					}
+				},
+				{
+					"name": "4.4 Relatório por Caminhão",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/reports/by-truck/:plate",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"reports",
+								"by-truck",
+								":plate"
+							],
+							"variable": [
+								{
+									"key": "plate",
+									"value": "ABC1D23"
+								}
+							]
+						},
+						"description": "Por caminhão: viagens realizadas, peso total e valor de carga."
+					}
+				}
+			]
+		},
+		{
+			"name": "5. Testes de Validação",
+			"item": [
+				{
+					"name": "5.1 Request Inválido (espera 400)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"plate\": \"\",\n  \"tareWeight\": -1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/trucks",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"trucks"
+							]
+						},
+						"description": "Deve retornar HTTP 400 com lista de erros de validação."
+					}
+				},
+				{
+					"name": "5.2 ID Inexistente (espera 404)",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/trucks/00000000-0000-0000-0000-000000000000",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"trucks",
+								"00000000-0000-0000-0000-000000000000"
+							]
+						},
+						"description": "Deve retornar HTTP 404 com mensagem de erro."
+					}
+				},
+				{
+					"name": "5.3 Pesagem Inválida (espera 400)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"\",\n  \"plate\": \"\",\n  \"weight\": -100\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/weighing",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"weighing"
+							]
+						},
+						"description": "Deve retornar HTTP 400 com erros de validação do payload do ESP32."
+					}
+				}
+			]
+		}
+	]
+}

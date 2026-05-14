@@ -25,7 +25,9 @@ public class Transaction {
     @Column(nullable = false)
     private UUID branchId;
 
+    private String plate;
     private Double grossWeight;
+    private Double tareWeight;
     private Double netWeight;
 
     @Column(precision = 14, scale = 2)
@@ -55,8 +57,12 @@ public class Transaction {
     public void setScaleId(UUID scaleId) { this.scaleId = scaleId; }
     public UUID getBranchId() { return branchId; }
     public void setBranchId(UUID branchId) { this.branchId = branchId; }
+    public String getPlate() { return plate; }
+    public void setPlate(String plate) { this.plate = plate; }
     public Double getGrossWeight() { return grossWeight; }
     public void setGrossWeight(Double grossWeight) { this.grossWeight = grossWeight; }
+    public Double getTareWeight() { return tareWeight; }
+    public void setTareWeight(Double tareWeight) { this.tareWeight = tareWeight; }
     public Double getNetWeight() { return netWeight; }
     public void setNetWeight(Double netWeight) { this.netWeight = netWeight; }
     public BigDecimal getTotalPurchasePrice() { return totalPurchasePrice; }
