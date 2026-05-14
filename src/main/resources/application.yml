@@ -23,3 +23,15 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+# Configurações do algoritmo de estabilização
+weighing:
+  window-duration-ms: 3000       # Janela mínima de 3 segundos
+  variance-threshold: 50.0       # Variância máxima (kg²) para considerar estável
+  escape-check-interval-ms: 500  # Intervalo para checar fuga prematura
+  idle-timeout-ms: 500           # Sem leitura por 500ms = caminhão saiu

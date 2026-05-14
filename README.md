@@ -7,12 +7,21 @@ Sistema para ingestão, estabilização e armazenamento de dados de pesagem de c
 - **Java 21** + **Spring Boot 3.3**
 - **Spring Data JPA** + **H2** (banco em memória)
 - **Bean Validation** (validação de entrada)
-- **Apache Kafka** (Etapas 2 e 3)
+- **Redis Streams** (mensageria para dados estabilizados)
+- **Docker Compose** (infraestrutura)
 
 ## Como Rodar
 
 ```bash
+# 1. Subir o Redis
+docker compose up -d
+
+# 2. Rodar a aplicação
 ./mvnw spring-boot:run
+```
+# 3. Le as mensagens do Redis Stream
+
+docker exec -it esp32-redis-1 redis-cli XRANGE weighing:stabilized - +
 ```
 
 A aplicação sobe na porta **8080**. Console do H2 disponível em: `http://localhost:8080/h2-console` (JDBC URL: `jdbc:h2:mem:grainscale`, user: `sa`, sem senha).
@@ -77,4 +86,44 @@ curl -X POST http://localhost:8080/api/scales \
 ```
 
 ---
+
+## Etapa 2 — Ingestão e Estabilização ✅
+
+Endpoint de ingestão de dados do ESP32 com algoritmo **Sliding Window** para estabilização do peso.
+
+### Como funciona
+
+```
+ESP32 (POST a cada 100ms)  →  WeighingController  →  WeighingService (Sliding Window)
+                                                          │
+                                                          ├── peso estável (≥3s, variância baixa) → publica no Redis Stream
+                                                          └── fuga prematura (<3s) → descarta tudo
+```
+
+1. O ESP32 envia `POST /api/weighing` com `{ "id", "plate", "weight" }` a cada 100ms
+2. O `WeighingService` acumula as leituras numa **janela deslizante** em memória
+3. Quando a janela tem **≥ 3 segundos** de dados e a **variância é baixa** → peso estabilizado
+4. O peso médio é publicado no **Redis Stream** (`weighing:stabilized`)
+5. Se o caminhão **sair antes de 3 segundos** → fuga prematura → nada é publicado
+
+### Endpoint
+
+| Método | Endpoint | Descrição |
+|--------|----------|------ |
+| `POST` | `/api/weighing` | Recebe leitura do ESP32 (retorna 202 Accepted) |
+
+### Exemplo — Simular pesagem
+
+```bash
+# Simular 35 leituras (~3.5 segundos) com peso estável
+for i in $(seq 1 35); do
+  curl -s -X POST http://localhost:8080/api/weighing \
+    -H "Content-Type: application/json" \
+    -d "{\"id\":\"ESP32-DOCK-01\",\"plate\":\"ABC1D23\",\"weight\":25430.5}"
+  sleep 0.1
+done
+```
+
+---
+
 
