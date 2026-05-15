@@ -69,27 +69,7 @@ Estrutura em camadas (Layered Architecture) com cadastros CRUD para as entidades
 
 ### Exemplos de uso
 
-```bash
-# Criar uma filial
-curl -X POST http://localhost:8080/api/branches \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Doca Central","location":"BR-163, km 42"}'
-
-# Criar um caminhão (com grão atribuído)
-curl -X POST http://localhost:8080/api/trucks \
-  -H "Content-Type: application/json" \
-  -d '{"plate":"ABC1D23","tareWeight":8500.0,"grainId":"<UUID_DO_GRÃO>"}'
-
-# Criar um grão
-curl -X POST http://localhost:8080/api/grains \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Soja","purchasePricePerTon":1850.00}'
-
-# Criar uma balança (usar o ID da filial retornado acima)
-curl -X POST http://localhost:8080/api/scales \
-  -H "Content-Type: application/json" \
-  -d '{"externalId":"ESP32-DOCK-01","branchId":"<UUID_DA_FILIAL>"}'
-```
+Utilize o arquivo **`Grain_Scale_API.postman_collection.json`** presente na raiz do projeto para realizar os testes de todos os endpoints. Ele já vem configurado com as requisições na ordem correta do fluxo da aplicação.
 
 ---
 
@@ -120,15 +100,7 @@ ESP32 (POST a cada 100ms)  →  WeighingController  →  WeighingService (Slidin
 
 ### Exemplo — Simular pesagem
 
-```bash
-# Simular 35 leituras (~3.5 segundos) com peso estável
-for i in $(seq 1 35); do
-  curl -s -X POST http://localhost:8080/api/weighing \
-    -H "Content-Type: application/json" \
-    -d "{\"id\":\"ESP32-DOCK-01\",\"plate\":\"ABC1D23\",\"weight\":25430.5}"
-  sleep 0.1
-done
-```
+A simulação e testes devem ser executados através da **Collection do Postman** fornecida no repositório (`Grain_Scale_API.postman_collection.json`). Ela contém todas as requisições de cadastros e o endpoint de simulação para gerar pesagens consecutivas de forma rápida.
 
 ---
 
@@ -152,49 +124,20 @@ Redis Stream (weighing:stabilized)
   7. Salva Transaction no banco com status PROCESSED
 ```
 
-### Margem de lucro dinâmica
+### Margem de lucro dinâmica e Controle de Estoque
 
-A margem varia de **5% a 20%** baseada na escassez do grão:
+A margem varia de **5% a 20%** e é inversamente proporcional à quantidade disponível (estoque) do grão na filial.
+Foi adicionada a entidade **Inventory** para registrar este controle:
 
-| Transações existentes | Margem aplicada |
-|:---------------------:|:---------------:|
-| 0 (grão escasso) | 20% |
-| 5 | 12.5% |
-| 10+ (abundante) | 5% |
+| Estoque existente na doca | Margem aplicada |
+|:-------------------------:|:---------------:|
+| 0 kg (grão escasso) | 20% |
+| 50.000 kg (50 Toneladas) | 12.5% |
+| >= 100.000 kg (abundante) | 5% |
 
 ### Teste completo (ponta a ponta)
 
-```bash
-# 1. Subir Redis e rodar a app
-docker compose up -d
-./mvnw spring-boot:run
-
-# 2. Criar dados base
-BRANCH=$(curl -s -X POST http://localhost:8080/api/branches \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Doca Central","location":"BR-163"}' | grep -o '"id":"[^"]*"' | cut -d'"' -f4)
-
-GRAIN=$(curl -s -X POST http://localhost:8080/api/grains \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Soja","purchasePricePerTon":1850.00}' | grep -o '"id":"[^"]*"' | cut -d'"' -f4)
-
-curl -s -X POST http://localhost:8080/api/scales \
-  -H "Content-Type: application/json" \
-  -d "{\"externalId\":\"ESP32-DOCK-01\",\"branchId\":\"$BRANCH\"}"
-
-curl -s -X POST http://localhost:8080/api/trucks \
-  -H "Content-Type: application/json" \
-  -d "{\"plate\":\"ABC1D23\",\"tareWeight\":8500.0,\"grainId\":\"$GRAIN\"}"
-
-# 3. Simular pesagem (35 leituras, ~3.5 segundos)
-for i in $(seq 1 35); do
-  curl -s -X POST http://localhost:8080/api/weighing \
-    -H "Content-Type: application/json" \
-    -d '{"id":"ESP32-DOCK-01","plate":"ABC1D23","weight":25430.5}'
-  sleep 0.1
-done
-
-# 4. Verificar a transação processada (aguardar ~2 segundos para o consumer)
-sleep 2
-curl -s http://localhost:8080/api/transactions | python3 -m json.tool
-```
+Para testar o fluxo de ponta a ponta, utilize o arquivo **`Grain_Scale_API.postman_collection.json`**. Nele você encontra:
+1. Cadastros de Filial, Grão, Caminhão e Balança.
+2. Endpoint simulador para injetar 35 leituras sequenciais.
+3. Endpoints de consultas das Transações e Relatórios processados.

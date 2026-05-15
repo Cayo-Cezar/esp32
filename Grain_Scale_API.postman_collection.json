@@ -355,6 +355,34 @@
 						},
 						"description": "Simula uma leitura do ESP32. Retorna 202 Accepted (fire-and-forget). Para estabilizar o peso, envie esta requisição ~35 vezes com intervalo de 100ms."
 					}
+				},
+				{
+					"name": "2.2 Simular 35 Leituras (Estabilização)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": \"ESP32-DOCK-01\",\n  \"plate\": \"ABC1D23\",\n  \"weight\": 25430.5\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/weighing/simulate",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"weighing",
+								"simulate"
+							]
+						},
+						"description": "Simula 35 leituras do ESP32 com intervalo de 100ms para forçar a estabilização do peso."
+					}
 				}
 			]
 		},

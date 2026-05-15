@@ -7,10 +7,12 @@ import com.grainscale.model.Transaction;
 import com.grainscale.model.TransactionStatus;
 import com.grainscale.model.Truck;
 import com.grainscale.model.Scale;
+import com.grainscale.model.Inventory;
 import com.grainscale.repository.GrainRepository;
 import com.grainscale.repository.ScaleRepository;
 import com.grainscale.repository.TransactionRepository;
 import com.grainscale.repository.TruckRepository;
+import com.grainscale.repository.InventoryRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.connection.stream.Consumer;
@@ -39,24 +41,26 @@ public class TransactionService {
 
     private static final double MARGIN_MIN = 0.05;  // 5%
     private static final double MARGIN_MAX = 0.20;  // 20%
-    private static final int SCARCITY_THRESHOLD = 10; // transações para considerar "abundante"
 
     private final StringRedisTemplate redisTemplate;
     private final TruckRepository truckRepository;
     private final GrainRepository grainRepository;
     private final ScaleRepository scaleRepository;
     private final TransactionRepository transactionRepository;
+    private final InventoryRepository inventoryRepository;
 
     public TransactionService(StringRedisTemplate redisTemplate,
                               TruckRepository truckRepository,
                               GrainRepository grainRepository,
                               ScaleRepository scaleRepository,
-                              TransactionRepository transactionRepository) {
+                              TransactionRepository transactionRepository,
+                              InventoryRepository inventoryRepository) {
         this.redisTemplate = redisTemplate;
         this.truckRepository = truckRepository;
         this.grainRepository = grainRepository;
         this.scaleRepository = scaleRepository;
         this.transactionRepository = transactionRepository;
+        this.inventoryRepository = inventoryRepository;
     }
 
     /**
@@ -122,8 +126,14 @@ public class TransactionService {
             return;
         }
 
-        // 5. Calcula margem dinâmica baseada na escassez do grão
-        double profitMargin = calculateDynamicMargin(grain.getId());
+        // Recupera ou cria o inventário para a filial e o grão
+        Inventory inventory = inventoryRepository.findByBranchIdAndGrainId(scale.getBranchId(), grain.getId())
+                .orElse(new Inventory(scale.getBranchId(), grain.getId(), 0.0));
+
+        double availableWeightKg = inventory.getWeightKg();
+
+        // 5. Calcula margem dinâmica baseada na escassez do grão (disponibilidade na doca)
+        double profitMargin = calculateDynamicMargin(availableWeightKg);
 
         // 6. Calcula preços
         double netWeightInTons = netWeight / 1000.0;
@@ -153,27 +163,31 @@ public class TransactionService {
 
         transactionRepository.save(transaction);
 
+        // 8. Atualiza o estoque
+        inventory.setWeightKg(inventory.getWeightKg() + netWeight);
+        inventoryRepository.save(inventory);
+
         log.info("✅ Transação processada: placa={}, grão={}, pesoLíquido={}kg, compra=R${}, venda=R${}, margem={}%",
                 plate, grain.getName(), String.format("%.2f", netWeight),
                 purchasePrice, salePrice, String.format("%.1f", profitMargin * 100));
     }
 
     /**
-     * Calcula a margem de lucro dinâmica baseada na escassez do grão.
+     * Calcula a margem de lucro dinâmica baseada na escassez do grão na doca.
      *
-     * Quanto menos transações com esse grão existem, maior a margem.
-     * - 0 transações → 20% (máxima)
-     * - 10+ transações → 5% (mínima)
+     * Quanto menos grão disponível, maior a margem.
+     * - 0 kg → 20% (máxima)
+     * - 100.000+ kg → 5% (mínima)
      */
-    private double calculateDynamicMargin(java.util.UUID grainId) {
-        long transactionCount = transactionRepository.findByGrainId(grainId).size();
+    private double calculateDynamicMargin(double availableWeightKg) {
+        double SCARCITY_THRESHOLD_KG = 100000.0; // 100 toneladas
 
-        // Interpolação linear: margem diminui conforme mais transações existem
-        double ratio = Math.min((double) transactionCount / SCARCITY_THRESHOLD, 1.0);
+        // Interpolação linear: margem diminui conforme mais estoque existe
+        double ratio = Math.min(availableWeightKg / SCARCITY_THRESHOLD_KG, 1.0);
         double margin = MARGIN_MAX - (ratio * (MARGIN_MAX - MARGIN_MIN));
 
-        log.info("Margem calculada: {} transações com este grão → margem={}%",
-                transactionCount, String.format("%.1f", margin * 100));
+        log.info("Margem calculada: {} kg disponíveis deste grão na doca → margem={}%",
+                availableWeightKg, String.format("%.1f", margin * 100));
 
         return margin;
     }

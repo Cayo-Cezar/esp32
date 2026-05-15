@@ -27,4 +27,13 @@ public class WeighingController {
     public void receiveReading(@Valid @RequestBody WeighingRequest request) {
         weighingService.processReading(request);
     }
+
+    @PostMapping("/simulate")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void simulateReading(@Valid @RequestBody WeighingRequest request) throws InterruptedException {
+        for (int i = 0; i < 35; i++) {
+            weighingService.processReading(request);
+            Thread.sleep(100);
+        }
+    }
 }
